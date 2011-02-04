@@ -23,7 +23,9 @@ class Plugin {
 	private $dict = null;
 
 	private $versions = null;
-	
+
+	private $latestVersion = null;
+
 	private static function parseCriterias($criterias) {
 		$where = array();
 		foreach ($criterias as $criteria => $value) {
@@ -74,10 +76,19 @@ class Plugin {
 		return $plugins;
 	}
 
+	/* Fetching with criterias can prevent the versions to load completely */
 	static function fetch($type, $value, $criterias = null) {
 		if (!$criterias)
 			$criterias = array();
 		$criterias[$type] = $value;
+		$fetch_version = null;
+		/* We will fetch the correct version ourselves
+		 * because doing it via SQL prevents the load of the other plugins
+		 */
+		if (@$criterias[PLUGIN_VERSION]) {
+			$fetch_version = $criterias[PLUGIN_VERSION];
+			unset($criterias[PLUGIN_VERSION]);
+		}
 		$where = self::parseCriterias($criterias);
 		/* Fetch the latest item first, so it can be the first one reconstructed */
 		$sql = "SELECT * FROM plugins WHERE $where ORDER BY version DESC;";
@@ -85,11 +96,15 @@ class Plugin {
 		if ($recs === false)
 			return null;
 		$plugin_rec = array_shift($recs);
+		$versions = array();
 		$plugin = new Plugin($plugin_rec);
 		foreach ($recs as $rec) {
-			$plugin->addVersion($rec['version']);
+			$version = new Plugin($rec);
+			$version->setLatestVersion($plugin);
+			$versions[] = $version;
 		}
-		return $plugin;
+		$plugin->setVersions($versions);
+		return $fetch_version ? $plugin->version($fetch_version) : $plugin;
 	}
 
 	static function get($type, $value, $criterias = null) {
@@ -105,18 +120,22 @@ class Plugin {
 
 	function __construct($dict) {
 		$this->dict = $dict;
+		$this->latestVersion = $this;
 		$this->versions = array();
+		$this->versions[$this->version] = $this;
 	}
-	
+
 	function __tostring() {
-		$version_str = "version: " . $this->displayVersion();
-		$old_versions_str = implode(", ", $this->versions);
-		return "Plugin $this->identifier $version_str (old: $old_versions_str)";
+		$version_str = " version: " . $this->displayVersion();
+		$host_str = $this->host ? " (host $this->host)" : "";
+		return "Plugin $this->identifier$version_str$host_str";
 	}
 
 	function __get($key) {
 		if ($key == 'versions')
 			return $this->versions;
+		if ($key == 'latestVersion')
+			return $this->latestVersion;
 		return $this->dict[$key];
 	}
 
@@ -151,12 +170,28 @@ class Plugin {
 		return $this->versions;
 	}
 
-	function addVersion($version) {
-		$this->versions[] = $version;
+	function _setVersions($versions) {
+		$this->versions = $versions;
+	}
+
+	function setVersions($versions) {
+		$versions_dict = array();
+		$this->versions = array();
+		$versions_dict[$this->version] = $this;
+
+		foreach ($versions as $version) {
+			$versions_dict[$version->version] = $version;
+			$version->_setVersions($versions_dict);
+		}
+		$this->_setVersions($versions_dict);
 	}
 
 	function version($version) {
-		return in_array($this->$versions, $version) ? $version : null;
+		return $this->versions[$version];
+	}
+
+	function setLatestVersion($latest) {
+		$this->latestVersion = $latest;
 	}
 
 	function displayVersion() {
