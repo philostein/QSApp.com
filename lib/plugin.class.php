@@ -109,7 +109,7 @@ class Plugin {
 
 	static function get($type, $value, $criterias = null) {
 		$plugin = null;
-		if ($type == PLUGIN_IDENTIFIER)
+		if ($type == PLUGIN_IDENTIFIER && $criterias == null)
 			$plugin = @self::$plugins[$value];
 		if (!$plugin) {
 			$plugin = self::fetch($type, $value, $criterias);
