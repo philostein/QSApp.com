@@ -235,6 +235,7 @@ class Plugin {
 		$values = implode(", ", $values);
 		$sql = "INSERT INTO plugins ($keys) VALUES ($values);";
 		query_db($sql);
+		$this->dirtyProperties = array();
 	}
 
 	function save() {
@@ -247,6 +248,7 @@ class Plugin {
 			$props = implode(", ", $props);
 			$sql = "UPDATE plugins SET $props WHERE identifier = \"$this->identifier\" AND version = $this->version;";
 			query_db($sql);
+			$this->dirtyProperties = array();
 		}
 	}
 }
