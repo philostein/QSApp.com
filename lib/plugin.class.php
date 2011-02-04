@@ -160,8 +160,8 @@ class Plugin {
 		return webRoot($img_url[0]);
 	}
 
-	function plugin_url() {
-		$file_name = fileRoot("/plugins/files/{$this->identifier}__{$this->version}.qspkg");
+	function plugin_url($ext = "qspkg") {
+		$file_name = fileRoot("/plugins/files/{$this->identifier}__{$this->version}.$ext");
 		$file_url = glob($file_name, GLOB_BRACE);
 		if ($file_url === false || count($file_url) == 0)
 			return null;
