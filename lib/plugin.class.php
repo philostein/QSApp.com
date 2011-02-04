@@ -26,6 +26,8 @@ class Plugin {
 
 	private $latestVersion = null;
 
+	private $dirtyProperties = null;
+
 	private static function parseCriterias($criterias) {
 		$where = array();
 		foreach ($criterias as $criteria => $value) {
@@ -119,10 +121,13 @@ class Plugin {
 	}
 
 	function __construct($dict) {
+		if (!$dict['displayVersion'])
+			$dict['displayVersion'] = null;
 		$this->dict = $dict;
 		$this->latestVersion = $this;
 		$this->versions = array();
 		$this->versions[$this->version] = $this;
+		$this->dirtyProperties = $dict;
 	}
 
 	function __tostring() {
@@ -137,6 +142,13 @@ class Plugin {
 		if ($key == 'latestVersion')
 			return $this->latestVersion;
 		return $this->dict[$key];
+	}
+
+	function __set($key, $value) {
+		if ($this->dict[$key] !== $value) {
+			$this->dict[$key] = $value;
+			$this->dirtyProperties[$key] = $value;
+		}
 	}
 
 	function image_url() {
@@ -208,6 +220,34 @@ class Plugin {
 		if ($this->displayVersion)
 			$array[PLUGIN_DISPLAY_VERSION] = $this->displayVersion;
 		return $array;
+	}
+
+	function create() {
+		$keys = array("identifier", "version", "name", "displayVersion", "modDate");
+		foreach ($keys as $key) {
+			$val = null;
+			if ($key == "modDate")
+				$val = strftime("%Y-%m-%d %H:%m:%s");
+			$val = quote_db($this->__get($key));
+			$values[] = $val;
+		}
+		$keys = implode(", ", $keys);
+		$values = implode(", ", $values);
+		$sql = "INSERT INTO plugins ($keys) VALUES ($values);";
+		query_db($sql);
+	}
+
+	function save() {
+		if (count($this->dirtyProperties)) {
+			$props = array();
+			foreach ($this->dirtyProperties as $prop => $val) {
+				$props[] = "$prop = " . quote_db($val);
+			}
+			$props[] = "modDate = NOW()";
+			$props = implode(", ", $props);
+			$sql = "UPDATE plugins SET $props WHERE identifier = \"$this->identifier\" AND version = $this->version;";
+			query_db($sql);
+		}
 	}
 }
 
