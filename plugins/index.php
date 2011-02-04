@@ -1,5 +1,20 @@
 <?php
+
 include('../lib/functions.php');
+
+connect_db();
+
+$ordervar = quote_db(@$_GET["order"]);
+$asc_desc = quote_db(@$_GET["sort"]);
+
+if(!$ordervar)
+	$ordervar = PLUGIN_MOD_DATE;
+
+if(!$asc_desc)
+	$asc_desc = "ASC";
+
+$all = Plugin::all(false, LEVEL_NORMAL, "$ordervar $asc_desc");
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -32,9 +47,30 @@ include('../lib/functions.php');
 	<div id="main">
 	<div class="box head name"><a href="?order=name&amp;sort=<?php if($_GET["sort"]=="DESC") echo "ASC"; else echo "DESC";?>">Plugin</a></div>
 	<div class="box head version">Vers.</div>
-	<div class="box head updated"><a href="?order=moddate&amp;sort=<?php if($_GET["sort"]=="DESC") echo "ASC"; else echo "DESC";?>">Updated</a></div>
+	<div class="box head updated"><a href="?order=modDate&amp;sort=<?php if($_GET["sort"]=="DESC") echo "ASC"; else echo "DESC";?>">Updated</a></div>
 <!--	<div class="box head" id="dl">Download</div> -->
-<?php outputPlugins(); ?>
+<?php
+
+$now = time();
+$i = 0;
+foreach($all as $plugin) {
+	$moddate_unix = strtotime($plugin->modDate);
+	$moddate_str = $plugin->modDate != "0000-00-00 00:00:00" ? strftime('%d-%m-%Y', $moddate_unix) : "Never";
+	$odd = $i % 2 == 1;
+
+	echo '<div class="box name"' . ($odd ? ' odd' : '') . '>';
+	echo '  <img src="' . $plugin->image_url() . '" alt="plugin icon" />';
+	echo '  <a href="' . $plugin->plugin_url() . '">' . $plugin->name . '</a>';
+	if($now - $moddate_unix <= 30412800)
+		echo '  <sup><span style="color:#ff0000;" >new!</span></sup>';
+	echo '</div>';
+	echo '<div class="box version"' . ($odd ? ' odd' : '') . '>' . $plugin->displayVersion() . '</div>';
+	echo '<div class="box updated"' . ($odd ? ' odd' : '') . '>' . $moddate_str . '</div>';
+	// echo '<div class="box dl"><a href="' . $plugin->plugin_url() . '"><img src="images/download.gif" /></a></div>';
+	$i++;
+}
+?>
+<p>&nbsp;</p>
 </div>
 <center>
 	<p style="color:#d1d1d1;font-size:8pt;">List compiled by &copy; Patrick Robertson, <?php echo date('Y'); ?><br />
