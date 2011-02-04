@@ -92,6 +92,12 @@ function error($str) {
 	die();
 }
 
+function http_error($code, $msg) {
+	header("HTTP $code $msg");
+	echo $msg;
+	die();
+}
+
 function dump($obj) {
 	ob_start();
 	var_dump($obj);
@@ -130,6 +136,24 @@ function webRoot($file) {
 
 function fileRoot($file) {
 	return $_SERVER['DOCUMENT_ROOT'] . webRoot($file);
+}
+
+function mime_type($file) {
+	$finfo = finfo_open();
+	$type = finfo_file($finfo, $file, FILEINFO_MIME);
+	finfo_close($finfo);
+	return $type;
+}
+
+function send_file($file, $name = null, $redirect = true) {
+	if ($redirect) {
+		header('Location:' . $file);
+		die("You are being redirected...");
+	} else {
+		$file = fileRoot($file);
+		header("Content-Type: " . mime_type($file));
+		echo file_get_contents($file));
+	}
 }
 
 ?>

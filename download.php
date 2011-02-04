@@ -10,23 +10,26 @@
 
 include("lib/functions.php");
 
+$type = null; /* either "app", "plugin" or null */
 $id = @$_GET['id'];
-$type = @$_GET['type'];
+$appType = null;
+$dlType = @$_GET['type'];
 $new = @$_GET['new'];
 $qsversion = @$_GET['qsversion'];
 
 $plugin = null;
 if ($id == QS_ID) {
-	$type = null;
+	$type = "app";
 	if (@$_GET['pre'] == "1")
-		$type = "pre";
+		$appType = "pre";
 	if (@$_GET['dev'] == "1")
-		$type = "dev";
-	if ($type)
-		$id .= ".$type";
+		$appType = "dev";
+	if ($appType)
+		$id .= ".$appType";
 
 	$plugin = Plugin::get(PLUGIN_IDENTIFIER, $id);
-} else {
+} elseif($id != null) {
+	$type = "plugin";
 	$criteria = array();
 	$criteria[PLUGIN_HOST] = QS_ID;
 	$criteria[PLUGIN_IDENTIFIER] = $id;
@@ -36,12 +39,28 @@ if ($id == QS_ID) {
 
 	$plugin = Plugin::get(PLUGIN_IDENTIFIER, $id, $criteria);
 }
-dump($plugin);
 
-if ($plugin) {
-	debug("Name: " . $plugin->name);
-	debug("Version: " . $plugin->displayVersion());
-	debug("URL: " . $plugin->plugin_url());
+if ($type == "app") {
+	switch ($dlType) {
+		case "dmg":
+			/* Build a path to this plugin dmg */
+			$file = $plugin->plugin_url($dlType);
+			if (!$file)
+				http_error(404, "File not found");
+			send_file($file);
+		break;
+		default:
+			http_error(500, "Unhandled type \"$dlType\". Use type=dmg");
+		break;
+	}
+} else if ($type == "plugin") {
+	/* Build a path to this plugin dmg */
+	$file = $plugin->plugin_url();
+	if (!$file)
+		http_error(404, "File not found");
+	send_file($file);
+} else {
+
 }
 
 ?>
