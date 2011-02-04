@@ -42,7 +42,7 @@ if ($sids) {
 	$sids = explode(", ", $sids);
 }
 
-debug("asOfDate: $asOfDate, version: $version, updated: " . ($updated ? "yes" : "no") . ", full index: " . ($shouldSendFullIndex ? "yes" : "no") . ", sids: $sids");
+//debug("asOfDate: $asOfDate, version: $version, updated: " . ($updated ? "yes" : "no") . ", full index: " . ($shouldSendFullIndex ? "yes" : "no") . ", sids: $sids");
 
 $criteria = array();
 $criteria[PLUGIN_HOST] = QS_ID;
