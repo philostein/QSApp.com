@@ -15,7 +15,7 @@
     <div id="wrapper">
         <table>
         
-        <table border=0 width=60%   cellpadding="0" background="http://static.tumblr.com/rf8jmdi/PU2lg56xd/lovequicksilver_table_background_515151_gray_translucent.png">
+        <table border=0 width=60%   cellpadding="0" background="https://github.com/downloads/philostein/QSApp.com/LoveQuicksilver%20table%20background%20515151%20gray%20translucent.png">
             <tr>
             <td>
             <table>
@@ -28,7 +28,7 @@
                         <table>
                         <tr>
                         <td>
-                        <img src="http://static.tumblr.com/rf8jmdi/kpVlg6c60/quicksilver_128.png" />
+                        <img src="https://github.com/downloads/philostein/QSApp.com/Quicksilver%20128%20darker.png" />
                         </td>
                 
                         <td>
