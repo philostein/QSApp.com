@@ -1,5 +1,7 @@
-QSApp.com source code repo
+philostein/QSApp.com source code repo
 ==========================
+
+Adding a new theme.
 
 This repo hosts all the source code (except for the wiki) that is used on [http://qsapp.com](http://qsapp.com).
 
