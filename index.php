@@ -28,7 +28,7 @@
                         <table>
                         <tr>
                         <td>
-                        <img src="images/Quicksilver 128 darker.png" />
+                        <img src="images/Quicksilver\ 128\ darker.png" />
                         </td>
                 
                         <td>
