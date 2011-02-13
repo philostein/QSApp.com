@@ -9,8 +9,10 @@
 	<!-- Date: 2010-04-04 -->
 <link href="plugins/styles.css" rel="stylesheet" type="text/css"  />
 </head>
-<body>
-	<body bgcolor="#515151" link="#FFFFFF" vlink="#CCCCCC" >
+
+<body bgcolor="#515151" link="#FFFFFF" vlink="#CCCCCC" >
+    <img src="http://static.tumblr.com/rf8jmdi/2snlgk22a/blacktree_1.6_ratio.jpg" alt="background image" id="bg" />
+    <div id="content">
 
     <div id="wrapper">
         <table>
@@ -145,6 +147,7 @@ You know PHP, HTML, MySQL, or anything webby? <br />Or you just want to help wit
         </div>
         </div>
      </table>   
+    </div>
     </div>
 </body>
 </html>
